@@ -698,8 +698,10 @@ def link_benchmark(bench):
             log.warning('Warning: Link of benchmark "{bench}" failed'.format(bench=bench))
             succeeded = False
 
-        log.debug(res.stdout.decode('utf-8'))
-        log.debug(res.stderr.decode('utf-8'))
+        if (len(res.stdout) != 0):
+            log.debug(res.stdout.decode('utf-8'))
+        if (len(res.stderr) != 0):
+            log.debug(res.stderr.decode('utf-8'))
 
     except subprocess.TimeoutExpired:
         log.warning('Warning: link of benchmark "{bench}" timed out'.format(bench=bench))
@@ -752,6 +754,7 @@ def main():
     successful = compile_support()
     if successful:
         log.debug('Compilation of support files successful')
+        log.debug('')
 
     for bench in benchmarks:
         res = compile_benchmark(bench)
@@ -762,7 +765,7 @@ def main():
             successful &= res
             if res:
                 log.debug('Linking of benchmark "{bench}" successful'.format(bench=bench))
-                log.info(bench)
+                log.debug('')
 
     if successful:
         log.info('All benchmarks built successfully')
