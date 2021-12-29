@@ -28,6 +28,7 @@ import re
 
 from embench_core import log
 
+cpu_mhz = 1
 
 def get_target_args(remnant):
     """Parse left over arguments"""
@@ -51,6 +52,12 @@ def get_target_args(remnant):
         default='localhost:3333',
         help='target argument to the GDB server',
     )
+    parser.add_argument(
+        '--cpu-mhz',
+        type=int,
+        default=33,
+        help='Processor clock speed in MHz'
+    )
 
     return parser.parse_args(remnant)
 
@@ -58,6 +65,9 @@ def get_target_args(remnant):
 def build_benchmark_cmd(bench, args):
     """Construct the command to run the benchmark.  "args" is a
        namespace with target specific arguments"""
+
+    global cpu_mhz
+    cpu_mhz = args.cpu_mhz
 
     cmd = [f'{args.gdb_command}', '-q']
     gdb_comms = [
@@ -106,6 +116,7 @@ def decode_results(stdout_str, stderr_str):
         return 0.0
     mcycle = int(rcstr.group(1), 16)
 
-    # mcycle @32.5MHz clock
-    ms_elapsed = float(mcycle) / 32500.0
+    # Time from cycles to milliseconds
+    global cpu_mhz
+    ms_elapsed = float(mcycle) / cpu_mhz / 1000.0
     return ms_elapsed

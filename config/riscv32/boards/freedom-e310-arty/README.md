@@ -71,22 +71,6 @@ Next apply the following changes to increase the size of data memory, and build 
          nMSHRs = 0,
 ```
 
-`freedom-e-sdk/bsp/freedom-e310-arty/metal.default.lds`
-
-```diff
-@@ -12,7 +12,7 @@ ENTRY(_enter)
- MEMORY
- {
-     itim (airwx) : ORIGIN = 0x8000000, LENGTH = 0x4000
--    ram (arw!xi) : ORIGIN = 0x80000000, LENGTH = 0x4000
-+    ram (arw!xi) : ORIGIN = 0x80000000, LENGTH = 0x80000
-     rom (irx!wa) : ORIGIN = 0x20400000, LENGTH = 0x1fc00000
- }
-
-```
-
-It is a kind of magic, isn't it?
-
 See the following link for more details;
 
 - [How to Increase the Size of the Data Memory on SiFive FE310 RISC-V](https://dloghin.medium.com/how-to-increase-the-size-of-the-data-memory-on-sifive-fe310-risc-v-f05df0f50a25)
@@ -99,7 +83,7 @@ Set the environment variables `PATH` and etc. following the Freedom E SDK docume
 Set the environment variable `FREEDOM_E_SDK_PATH` to the directory of the Freedom E SDK installed. For example;
 
 ```sh
-export FREEDOM_E_SDK_PATH=/home/foo/github/freedom-e-sdk
+export FREEDOM_E_SDK_PATH=$HOME/github/freedom-e-sdk
 ```
 
 If you have a Debug Adapter other than Olimex ARM-USB-TINY-H,
@@ -118,24 +102,27 @@ modify `bsp/freedom-e310-arty/openocd.cfg` as follows;
 
 ```
 
-### Build
+### Running the benchmark of code size
+
+Benchmarks should be compiled with dummy versions of all standard libraries.
 
 ```sh
-./build_all.py -v --arch riscv32 --chip generic --board freedom-e310-arty --cpu-mhz=32
-```
-
-### Size Test
-
-```sh
+./build_all.py -v --arch riscv32 --chip generic --board freedom-e310-arty \
+    --cflags "-Os -msave-restore" --dummy-libs "crt0 libc libgcc libm"
 ./benchmark_size.py
 ```
 
-### Speed Test
+In the above examples, `-Os -msave-restore` is used for `--cflags` to get
+size-optimized results. Use `-O2` or other options to get the
+performance-optimized results.
+
+### Running the benchmark of code speed
 
 Invoke an OpenOCD server in a terminal window.
 
 ```sh
-/opt/SiFive/riscv-openocd-0.10.0-2020.12.1-x86_64-linux-ubuntu14/bin/openocd -f bsp/freedom-e310-arty/openocd.cfg
+/opt/SiFive/riscv-openocd-0.10.0-2020.12.1-x86_64-linux-ubuntu14/bin/openocd \
+    -f bsp/freedom-e310-arty/openocd.cfg
 ```
 
 Run the following command in a terminal window.
@@ -146,17 +133,32 @@ stty -F /dev/ttyUSB2 57600
 cat /dev/ttyUSB2
 ```
 
-Run the speed benchmark.
+Build and run the benchmark.
+Benchmarks should be compiled with real versions of libraries in the SDK.
 
 ```sh
-./benchmark_speed.py --target-module run_freedom-e310-arty --timeout=600
+./build_all.py -v --arch riscv32 --chip generic --board freedom-e310-arty \
+      --cflags "-Os -msave-restore -I$FREEDOM_E_SDK_PATH/bsp/freedom-e310-arty/install/include" \
+      --ldflags "-L $FREEDOM_E_SDK_PATH/bsp/freedom-e310-arty/install/lib/debug/" \
+      --user-libs "-Wl,--start-group -lc -lgcc -lm -lmetal -lmetal-gloss -Wl,--end-group"
+./benchmark_speed.py --target-module run_freedom-e310-arty
 ```
 
-On Windows Subsystem for Linux (WSL) invoke an OpenOCD server on Windows
-and connect to it by using `--gdbserver-target` option.
+#### openocd on Windows Subsystem for Linux (WSL)
+
+See [WSL Documentation: Connect USB devices](https://docs.microsoft.com/en-us/windows/wsl/connect-usb).
+
+If you are using Windows 10 and don't want to build your own USBIP enabled WSL 2
+kernel, invoke an OpenOCD server on Windows with `-c "bindto 0.0.0.0"` option:
 
 ```sh
-./benchmark_speed.py --target-module run_freedom-e310-arty --timeout=600 --gdbserver-target $(grep -oP "(?<=nameserver ).+" /etc/resolv.conf):3333
+openocd.exe -f bsp/freedom-e310-arty/openocd.cfg -c "bindto 0.0.0.0"
+```
+
+Then connect gdb to it by using `--gdbserver-target` option from WSL 2.
+
+```sh
+./benchmark_speed.py --target-module run_freedom-e310-arty --gdbserver-target $(grep -oP "(?<=nameserver ).+" /etc/resolv.conf):3333
 ```
 
 ## Debugging
@@ -187,6 +189,7 @@ Use `load` command to reload a recompiled program.
 ### Debugging in VS Code
 
 Example of `launch.json`:
+See [Configuring C/C++ debugging](https://code.visualstudio.com/docs/cpp/launch-json-reference) for more configuration options.
 
 ```json
         {
@@ -194,9 +197,7 @@ Example of `launch.json`:
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bd/src/nbody/nbody",
-            // "args": [],
             "cwd": "${workspaceRoot}",
-            // "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "riscv64-unknown-elf-gdb",

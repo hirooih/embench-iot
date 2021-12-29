@@ -40,7 +40,7 @@ rdmcycle ()
 void __attribute__ ((noinline)) __attribute__ ((externally_visible))
 initialise_board ()
 {
-  __asm__ volatile ("li a0, 0" : : : "memory");
+  __asm__ volatile ("" : : : "memory");
 }
 
 void __attribute__ ((noinline)) __attribute__ ((externally_visible))

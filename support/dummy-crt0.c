@@ -36,6 +36,12 @@ __init (void)
   (void) main (0, 0);
 }
 
+void
+_enter (void)
+{
+  (void) main (0, 0);
+}
+
 /*
    Local Variables:
    mode: C
