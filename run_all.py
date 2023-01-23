@@ -1412,7 +1412,13 @@ def main():
                 user_libs_speed = '-lm'
 
             print(f'  {name}')
-            resfile = os.path.join('results', name + '.json')
+            resfile = os.path.join(args.resdir, name + '.json')
+            if not os.path.isdir(args.resdir):
+                try:
+                    os.makedirs(args.resdir)
+                except PermissionError:
+                    log.error(f'ERROR: Unable to create build directory {args.resdir}: exiting')
+                    sys.exit(1)
 
             add_arglist = [f'--builddir={args.builddir}', f'--logdir={args.logdir}']
             if args.benchmark:
