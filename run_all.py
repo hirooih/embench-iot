@@ -1128,6 +1128,16 @@ def build_parser():
         '-v', '--verbose', action='store_true', help='More messages'
     )
     parser.add_argument(
+        '--builddir',
+        default='bd',
+        help='Directory in which to build benchmarks and support code',
+    )
+    parser.add_argument(
+        '--logdir',
+        default='logs',
+        help='Directory in which to store logs',
+    )
+    parser.add_argument(
         '--resdir',
         type=str,
         default='results',
@@ -1192,7 +1202,7 @@ def build_parser():
     return parser
 
 
-def build_benchmarks(benchmark, exclude, arch, chip, board, cc=None, cflags=None, ldflags=None,
+def build_benchmarks(benchmark, exclude, builddir, logdir, arch, chip, board, cc=None, cflags=None, ldflags=None,
                      dummy_libs=None, user_libs=None, path=None, env=None,
                      ld=None, cpu_mhz=None, warmup_heat=None, verbose=False):
     """Build all the benchmarks"""
@@ -1202,6 +1212,8 @@ def build_benchmarks(benchmark, exclude, arch, chip, board, cc=None, cflags=None
         f'./build_all.py',
         f'--clean',
         f'--verbose',
+        f'--builddir={builddir}',
+        f'--logdir={logdir}',
         f'--arch={arch}',
         f'--chip={chip}',
 	f'--board={board}',
@@ -1402,7 +1414,7 @@ def main():
             print(f'  {name}')
             resfile = os.path.join('results', name + '.json')
 
-            add_arglist = []
+            add_arglist = [f'--builddir={args.builddir}', f'--logdir={args.logdir}']
             if args.benchmark:
                 add_arglist += ['--benchmark'] + args.benchmark
             if args.exclude:
@@ -1415,6 +1427,8 @@ def main():
                 build_benchmarks(
                     benchmark=args.benchmark,
                     exclude=args.exclude,
+                    builddir=args.builddir,
+                    logdir=args.logdir,
                     arch=r['arch'],
                     chip=r['chip'],
                     board=r['board'],
@@ -1444,6 +1458,8 @@ def main():
                 build_benchmarks(
                     benchmark=args.benchmark,
                     exclude=args.exclude,
+                    builddir=args.builddir,
+                    logdir=args.logdir,
                     arch=r['arch'],
                     chip=r['chip'],
                     board=r['board'],
