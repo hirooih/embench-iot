@@ -1301,6 +1301,39 @@ def benchmark(arglist, timeout, desc, resfile, append, verbose=False):
             fileh.close()
 
 
+# a list of scalar parameters
+scalar_params = (
+    'name', 'arch', 'chip', 'board', 'cc', 'ld', 'cpu_mhz', 'warmup_heat',
+    'nostartfiles', 'nostdlib',
+)
+# a list of list parameters. value: separator
+#   `dummy-libs` is not included.  It is set to a fixed value on the size benchmark.
+list_params = {
+    'cflags': ' ', 'ldflags': ' ', 'user_libs': ',', 'path': ':', 'env': ':',
+}
+
+
+def check_params(params):
+    for key in params:
+        if not (key in list_params) and not (key in scalar_params):
+            print(f"Warning: Unknown parameter {key}. Ignored.")
+
+
+def merge_params(orig, add):
+    dest = orig.copy()
+    for key in add:
+        if key in list_params:
+            if key in dest:
+                dest[key] += list_params[key] + add[key]
+            else:
+                dest[key] = add[key]
+        elif key in scalar_params:
+            dest[key] = add[key]
+        else:
+            print(f"Warning: Unknown parameter {key}. Ignored.")
+    return dest
+
+
 def main():
     """Main program to drive building of benchmarks."""
 
@@ -1340,8 +1373,13 @@ def main():
     # Take each runset in turn
     for rs in runsets:
         print(rs['name'])
+        if 'common' in rs:
+            check_params(rs['common'])
 
         for r in rs['runs']:
+            if 'common' in rs:
+                r = merge_params(rs['common'], r)
+
             name = r['name']
             if 'nostartfiles' in r:
                 nostartfiles = r['nostartfiles']
