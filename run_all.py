@@ -1127,6 +1127,20 @@ def build_parser():
     parser = argparse.ArgumentParser(description='Build all the benchmarks')
 
     parser.add_argument(
+        '--benchmark',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to build. By default all tests are build.'
+    )
+    parser.add_argument(
+        '--exclude',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to exclude.'
+    )
+    parser.add_argument(
         '--resdir',
         type=str,
         default='results',
@@ -1203,7 +1217,7 @@ def arglist_to_str(arglist):
     return str
 
 
-def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
+def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None, ldflags=None,
                      dummy_libs=None, user_libs=None, path=None, env=None):
     """Build all the benchmarks"""
 
@@ -1227,6 +1241,10 @@ def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
         arglist.append(f'--user-libs={user_libs}')
     if env:
         arglist.append(f'--env={env}')
+    if benchmark:
+        arglist += ['--benchmark'] + benchmark
+    if exclude:
+        arglist += ['--exclude'] + exclude
 
     # Do we need a different path?
     if path:
@@ -1362,9 +1380,17 @@ def main():
             print(f'  {name}')
             resfile = os.path.join('results', name + '.json')
 
+            add_arglist = []
+            if args.benchmark:
+                add_arglist += ['--benchmark'] + args.benchmark
+            if args.exclude:
+                add_arglist += ['--exclude'] + args.exclude
+
             # Size benchmark
             if 'size benchmark' in rs:
                 build_benchmarks(
+                    benchmark=args.benchmark,
+                    exclude=args.exclude,
                     arch=r['arch'],
                     chip=r['chip'],
                     board=r['board'],
@@ -1376,7 +1402,7 @@ def main():
                     env=env,
                 )
                 benchmark(
-                    arglist=rs['size benchmark']['arglist'],
+                    arglist=rs['size benchmark']['arglist'] + add_arglist,
                     timeout=rs['size benchmark']['timeout'],
                     desc=rs['size benchmark']['desc'],
                     resfile=resfile,
@@ -1386,6 +1412,8 @@ def main():
             # Speed benchmark
             if 'speed benchmark' in rs:
                 build_benchmarks(
+                    benchmark=args.benchmark,
+                    exclude=args.exclude,
                     arch=r['arch'],
                     chip=r['chip'],
                     board=r['board'],
@@ -1397,7 +1425,7 @@ def main():
                     env=env,
                 )
                 benchmark(
-                    arglist=rs['speed benchmark']['arglist'],
+                    arglist=rs['speed benchmark']['arglist'] + add_arglist,
                     timeout=rs['speed benchmark']['timeout'],
                     desc=rs['speed benchmark']['desc'],
                     resfile=resfile,
