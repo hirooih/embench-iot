@@ -1266,12 +1266,15 @@ def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None
         if res.returncode == 0:
             if not ('All benchmarks built successfully' in
                     res.stdout.decode('utf-8')):
+                print(res.stdout.decode('utf-8'))
                 print('ERROR: Not all benchmarks built successfully')
                 sys.exit(1)
         else:
+            print(res.stdout.decode('utf-8'))
             print(f'ERROR: {arglist_to_str(arglist)} failed')
             sys.exit(1)
     except subprocess.TimeoutExpired:
+        print(res.stdout.decode('utf-8'))
         print(f'ERROR: {arglist_to_str(arglist)} timed out')
         sys.exit(1)
 
@@ -1297,13 +1300,16 @@ def benchmark(arglist, timeout, desc, resfile, append, verbose=False):
         if res.returncode == 0:
             if not ('All benchmarks ' + desc +' successfully' in
                     res.stdout.decode('utf-8')):
-                print('Warning: Not all benchmarks ' + desc + ' successfully')
+                print(res.stdout.decode('utf-8'))
+                print('ERROR: Not all benchmarks ' + desc + ' successfully')
                 succeeded = False
         else:
-            print(f'Warning: {arglist_to_str(arglist)} failed')
+            print(res.stdout.decode('utf-8'))
+            print(f'ERROR: {arglist_to_str(arglist)} failed')
             succeeded = False
     except subprocess.TimeoutExpired:
-        print(f'Warning: {arglist_to_str(arglist)} timed out')
+        print(res.stdout.decode('utf-8'))
+        print(f'ERROR: {arglist_to_str(arglist)} timed out')
         succeeded = False
 
     # Dump the data if successful
