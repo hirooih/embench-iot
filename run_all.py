@@ -1193,7 +1193,8 @@ def build_parser():
 
 
 def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None, ldflags=None,
-                     dummy_libs=None, user_libs=None, path=None, env=None, verbose=False):
+                     dummy_libs=None, user_libs=None, path=None, env=None,
+                     ld=None, cpu_mhz=None, warmup_heat=None, verbose=False):
     """Build all the benchmarks"""
 
     # Construct the argument list
@@ -1216,6 +1217,12 @@ def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None
         arglist.append(f'--user-libs={user_libs}')
     if env:
         arglist.append(f'--env={env}')
+    if ld:
+        arglist.append(f'--ld={ld}')
+    if cpu_mhz:
+        arglist.append(f'--cpu-mhz={cpu_mhz}')
+    if warmup_heat:
+        arglist.append(f'--warmup-heat={warmup_heat}')
     if benchmark:
         arglist += ['--benchmark'] + benchmark
     if exclude:
@@ -1340,6 +1347,11 @@ def main():
             else:
                 ldflags_size = '-nostartfiles -nostdlib'
 
+            if 'user_libs' in r:
+                user_libs_speed = r['user_libs']
+            else:
+                user_libs_speed = '-lm'
+
             if 'path' in r:
                 path = r['path']
             else:
@@ -1349,6 +1361,21 @@ def main():
                 env = r['env']
             else:
                 env = None
+
+            if 'ld' in r:
+                ld = r['ld']
+            else:
+                ld = None
+
+            if 'cpu_mhz' in r:
+                cpu_mhz = r['cpu_mhz']
+            else:
+                cpu_mhz = None
+
+            if 'warmup_heat' in r:
+                warmup_heat = r['warmup_heat']
+            else:
+                warmup_heat = None
 
             print(f'  {name}')
             resfile = os.path.join('results', name + '.json')
@@ -1370,11 +1397,14 @@ def main():
                     chip=r['chip'],
                     board=r['board'],
                     cc=r['cc'],
+                    ld=ld,
                     cflags=r['cflags'],
                     ldflags=ldflags_size,
                     dummy_libs='crt0 libc libgcc libm',
                     path=path,
                     env=env,
+                    cpu_mhz=cpu_mhz,
+                    warmup_heat=warmup_heat,
                     verbose=args.verbose,
                 )
                 add_arglist_size = ['--json-comma'] if 'speed benchmark' in rs else []
@@ -1396,11 +1426,14 @@ def main():
                     chip=r['chip'],
                     board=r['board'],
                     cc=r['cc'],
+                    ld=ld,
                     cflags=r['cflags'],
                     ldflags=r['ldflags'],
-                    user_libs='-lm',
+                    user_libs=user_libs_speed,
                     path=path,
                     env=env,
+                    cpu_mhz=cpu_mhz,
+                    warmup_heat=warmup_heat,
                     verbose=args.verbose,
                 )
                 add_arglist_speed = ['--no-json-head'] if 'size benchmark' in rs else []
