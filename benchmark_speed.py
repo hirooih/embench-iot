@@ -98,15 +98,28 @@ def get_common_args():
         help='Specify to output in a format suitable for use as a baseline'
     )
     parser.add_argument(
+        '--json-head',
+        action='store_true',
+        default=True,
+        help='Specify to prepend a left curly bracket to the JSON output',
+    )
+    parser.add_argument(
+        '--no-json-head',
+        dest='json_head',
+        action='store_false',
+        help='Specify not to prepend a left curly bracket to the JSON output',
+    )
+    parser.add_argument(
         '--json-comma',
         action='store_true',
-        help='Specify to append a comma to the JSON output',
+        default=False,
+        help='Specify to append a comma and not to append a right curly bracket to the JSON output',
     )
     parser.add_argument(
         '--no-json-comma',
         dest='json_comma',
         action='store_false',
-        help='Specify to not append a comma to the JSON output',
+        help='Specify to not append a comma and to append a right curly bracket to the JSON output',
     )
     parser.add_argument(
         '--target-module',
@@ -317,10 +330,6 @@ def collect_data(benchmarks, remnant):
 
     # Output it
     if gp['output_format'] == output_format.JSON:
-        if gp['benchmark'] or gp['exclude']:
-            log.info('These results are not valid Embench scores as they are taken from a subset of the Embench suite.')
-        log.info('{  "speed results" :')
-        log.info('  { "detailed speed results" :')
         for bench in benchmarks:
             output = ''
             if raw_data[bench] != 0.0:
@@ -390,6 +399,14 @@ def main():
     benchmarks = find_benchmarks()
     log_benchmarks(benchmarks)
 
+    # Output JSON header
+    if gp['output_format'] == output_format.JSON:
+        if args.json_head:
+            log.info('{ "speed results" :')
+        else:
+            log.info('  "speed results" :')
+        log.info('  { "detailed speed results" :')
+
     # Collect the speed data for the benchmarks. Pass any remaining args.
     raw_data, rel_data = collect_data(benchmarks, remnant)
 
@@ -400,10 +417,15 @@ def main():
     # compute overhead is not significant.
     if raw_data:
         if gp['output_format'] != output_format.BASELINE:
-            opt_comma = ',' if args.json_comma else ''
-            embench_stats(benchmarks, raw_data, rel_data, 'speed', opt_comma)
-            if gp['output_format'] == output_format.JSON: log.info('}')
-            else: log.info('All benchmarks run successfully')
+            embench_stats(benchmarks, raw_data, rel_data, 'speed')
+            if gp['output_format'] == output_format.JSON:
+                if args.json_comma:
+                    log.info('  },')
+                else:
+                    log.info('  }')
+                    log.info('}')
+            if gp['output_format'] == output_format.TEXT:
+                log.info('All benchmarks run successfully')
     else:
         log.info('ERROR: Failed to compute speed benchmarks')
         sys.exit(1)
