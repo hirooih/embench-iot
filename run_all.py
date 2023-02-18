@@ -44,7 +44,6 @@ fosdem_rv32_gcc_opt_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -56,7 +55,6 @@ fosdem_rv32_gcc_opt_runset = {
 	    '--gdbserver-command=riscv32-gdbserver',
 	    '--gdb-command=riscv32-unknown-elf-gdb',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'run'
     },
@@ -125,7 +123,6 @@ fosdem_rv32_llvm_opt_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -137,7 +134,6 @@ fosdem_rv32_llvm_opt_runset = {
 	    '--gdbserver-command=riscv32-gdbserver',
 	    '--gdb-command=riscv32-unknown-elf-gdb',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'run'
     },
@@ -206,7 +202,6 @@ fosdem_arm_gcc_opt_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -275,7 +270,6 @@ fosdem_arm_llvm_opt_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -368,7 +362,6 @@ rv32_gcc_opt_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -380,7 +373,6 @@ rv32_gcc_opt_runset = {
 	    '--gdbserver-command=riscv32-gdbserver',
 	    '--gdb-command=riscv32-unknown-elf-gdb',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'run'
     },
@@ -491,7 +483,6 @@ rv32_llvm_opt_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -503,7 +494,6 @@ rv32_llvm_opt_runset = {
 	    '--gdbserver-command=riscv32-gdbserver',
 	    '--gdb-command=riscv32-unknown-elf-gdb',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'run'
     },
@@ -527,7 +517,6 @@ rv32_gcc_isa_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -539,7 +528,6 @@ rv32_gcc_isa_runset = {
 	    '--gdbserver-command=riscv32-gdbserver',
 	    '--gdb-command=riscv32-unknown-elf-gdb',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'run'
     },
@@ -651,7 +639,6 @@ rv32_gcc_version_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -663,7 +650,6 @@ rv32_gcc_version_runset = {
 	    '--gdbserver-command=riscv32-gdbserver',
 	    '--gdb-command=riscv32-unknown-elf-gdb',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'run'
     },
@@ -876,7 +862,6 @@ gcc_arch_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'sized'
     },
@@ -963,7 +948,6 @@ gcc9_arch_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'sized'
     },
@@ -1051,7 +1035,6 @@ arm_gcc_version_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
-            '--no-json-comma',
         ],
         'desc' : 'sized'
     },
@@ -1394,8 +1377,9 @@ def main():
                     env=env,
                     verbose=args.verbose,
                 )
+                add_arglist_size = ['--json-comma'] if 'speed benchmark' in rs else []
                 benchmark(
-                    arglist=rs['size benchmark']['arglist'] + add_arglist,
+                    arglist=rs['size benchmark']['arglist'] + add_arglist + add_arglist_size,
                     timeout=rs['size benchmark']['timeout'],
                     desc=rs['size benchmark']['desc'],
                     resfile=resfile,
@@ -1419,8 +1403,9 @@ def main():
                     env=env,
                     verbose=args.verbose,
                 )
+                add_arglist_speed = ['--no-json-head'] if 'size benchmark' in rs else []
                 benchmark(
-                    arglist=rs['speed benchmark']['arglist'] + add_arglist,
+                    arglist=rs['speed benchmark']['arglist'] + add_arglist + add_arglist_speed,
                     timeout=rs['speed benchmark']['timeout'],
                     desc=rs['speed benchmark']['desc'],
                     resfile=resfile,
