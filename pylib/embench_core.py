@@ -232,7 +232,7 @@ def compute_georange(geomean, geosd, count):
     return georange
 
 
-def output_stats(geomean, geosd, georange, count, bm_type, opt_comma):
+def output_stats(geomean, geosd, georange, count, bm_type):
     """Output the statistical summary.
 
        Note that we manually generate the JSON output, rather than using the
@@ -271,7 +271,6 @@ def output_stats(geomean, geosd, georange, count, bm_type, opt_comma):
     if gp['output_format'] == output_format.JSON:
         log.info('    "{bm} geometric mean" : {gmo},'.format(bm=bm_type, gmo=geomean_op))
         log.info('    "{bm} geometric standard deviation" : {gso}'.format(bm=bm_type, gso=geosd_op))
-        log.info('  }' + '{oc}'.format(oc=opt_comma))
     elif gp['output_format'] == output_format.TEXT:
         log.info('---------           -----')
         log.info('Geometric mean   {gmo:8}'.format(gmo=geomean_op))
@@ -279,12 +278,12 @@ def output_stats(geomean, geosd, georange, count, bm_type, opt_comma):
         log.info('Geometric range  {gro:8}'.format(gro=georange_op))
 
 
-def embench_stats(benchmarks, raw_data, rel_data, bm_type, opt_comma):
+def embench_stats(benchmarks, raw_data, rel_data, bm_type):
     """Output statistics summary for Embench."""
     geomean, count = compute_geomean(benchmarks, raw_data, rel_data)
     geosd = compute_geosd(benchmarks, raw_data, rel_data, geomean, count)
     georange = compute_georange(geomean, geosd, count)
-    output_stats(geomean, geosd, georange, count, bm_type, opt_comma)
+    output_stats(geomean, geosd, georange, count, bm_type)
 
 
 def arglist_to_str(arglist):

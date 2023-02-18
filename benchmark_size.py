@@ -156,15 +156,28 @@ def build_parser():
         help='Specify to output in a format suitable for use as a baseline'
     )
     parser.add_argument(
+        '--json-head',
+        action='store_true',
+        default=True,
+        help='Specify to prepend a left curly bracket to the JSON output',
+    )
+    parser.add_argument(
+        '--no-json-head',
+        dest='json_head',
+        action='store_false',
+        help='Specify not to prepend a left curly bracket to the JSON output',
+    )
+    parser.add_argument(
         '--json-comma',
         action='store_true',
-        help='Specify to append a comma to the JSON output',
+        default=False,
+        help='Specify to append a comma and not to append a right curly bracket to the JSON output',
     )
     parser.add_argument(
         '--no-json-comma',
         dest='json_comma',
         action='store_false',
-        help='Specify to not append a comma to the JSON output',
+        help='Specify to not append a comma and to append a right curly bracket to the JSON output',
     )
     # List arguments are empty by default, a user specified value then takes
     # precedence. If the list is empty after parsing, then we can install a
@@ -362,8 +375,6 @@ def collect_data(benchmarks):
 
     # Output it
     if gp['output_format'] == output_format.JSON:
-        log.info('{  "size results" :')
-        log.info('  { "detailed size results" :')
         for bench in benchmarks:
             res_output = ''
             if gp['absolute']:
@@ -435,6 +446,14 @@ def main():
     benchmarks = find_benchmarks()
     log_benchmarks(benchmarks)
 
+    # Output JSON header
+    if gp['output_format'] == output_format.JSON:
+        if args.json_head:
+            log.info('{ "size results" :')
+        else:
+            log.info('  "size results" :')
+        log.info('  { "detailed size results" :')
+
     # Collect the size data for the benchmarks
     raw_data, rel_data = collect_data(benchmarks)
 
@@ -445,10 +464,15 @@ def main():
     # compute overhead is not significant.
     if raw_data:
         if gp['output_format'] != output_format.BASELINE:
-            opt_comma = ',' if args.json_comma else ''
-            embench_stats(benchmarks, raw_data, rel_data, 'size', opt_comma)
-            if gp['output_format'] == output_format.JSON: log.info('}')
-            else: log.info('All benchmarks sized successfully')
+            embench_stats(benchmarks, raw_data, rel_data, 'size')
+            if gp['output_format'] == output_format.JSON:
+                if args.json_comma:
+                    log.info('  },')
+                else:
+                    log.info('  }')
+                    log.info('}')
+            if gp['output_format'] == output_format.TEXT:
+                log.info('All benchmarks sized successfully')
     else:
         log.info('ERROR: Failed to compute size benchmarks')
         sys.exit(1)
