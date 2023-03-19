@@ -288,6 +288,9 @@ def arglist_to_str(arglist):
     """Make arglist into a string"""
 
     for arg in arglist:
+        # quote if arg includes a whitespace
+        if bool(re.search(r"\s", arg)):
+            arg = '"' + arg + '"'
         if arg == arglist[0]:
             str = arg
         else:
