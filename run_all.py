@@ -33,6 +33,7 @@ from embench_core import setup_logging
 from embench_core import log_args
 from embench_core import find_benchmarks
 from embench_core import log_benchmarks
+from embench_core import arglist_to_str
 
 # The various sets of benchmarks we could run
 
@@ -1203,18 +1204,6 @@ def build_parser():
     )
 
     return parser
-
-
-def arglist_to_str(arglist):
-    """Make arglist into a string"""
-
-    for arg in arglist:
-        if arg == arglist[0]:
-            str = arg
-        else:
-            str = str + ' ' + arg
-
-    return str
 
 
 def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None, ldflags=None,
