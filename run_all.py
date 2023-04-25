@@ -785,61 +785,6 @@ def build_parser():
         '--no-build-for-speed',
         action='store_true',
         help='Disable the build for speed benchmark.')
-    parser.add_argument(
-        '--fosdem-rv32-gcc-opt',
-        action='store_true',
-        help='Run FOSDEM RV32IMC GCC optimization comparison benchmarks'
-    )
-    parser.add_argument(
-        '--fosdem-rv32-llvm-opt',
-        action='store_true',
-        help='Run FOSDEM RV32IMC Clang/LLVM optimization comparison benchmarks'
-    )
-    parser.add_argument(
-        '--fosdem-arm-gcc-opt',
-        action='store_true',
-        help='Run FOSDEM Arm Cortex M4 GCC optimization comparison benchmarks'
-    )
-    parser.add_argument(
-        '--fosdem-arm-llvm-opt',
-        action='store_true',
-        help='Run FOSDEM Arm Cortex M4 Clang/LLVM optimization comparison benchmarks'
-    )
-    parser.add_argument(
-        '--rv32-gcc-opt',
-        action='store_true',
-        help='Run RISC-V GCC optimization comparison benchmarks'
-    )
-    parser.add_argument(
-        '--rv32-llvm-opt',
-        action='store_true',
-        help='Run RISC-V Clang/LLVM optimization comparison benchmarks'
-    )
-    parser.add_argument(
-        '--rv32-gcc-isa',
-        action='store_true',
-        help='Run RISC-V GCC isa comparison benchmarks'
-    )
-    parser.add_argument(
-        '--rv32-gcc-version',
-        action='store_true',
-        help='Run RISC-V GCC version comparison benchmarks'
-    )
-    parser.add_argument(
-        '--gcc-arch',
-        action='store_true',
-        help='Run GCC architecture comparison benchmarks'
-    )
-    parser.add_argument(
-        '--gcc9-arch',
-        action='store_true',
-        help='Run GCC 9.2 architecture comparison benchmarks'
-    )
-    parser.add_argument(
-        '--arm-gcc-version',
-        action='store_true',
-        help='Run Arm GCC version comparison benchmarks'
-    )
 
     return parser
 
@@ -989,38 +934,8 @@ def merge_params(orig, add):
     return dest
 
 
-def main():
-    """Main program to drive building of benchmarks."""
-
-    # Parse arguments using standard technology
-    parser = build_parser()
-    args = parser.parse_args()
-
-    runsets = []
-
-    if args.fosdem_rv32_gcc_opt:
-        runsets.append(fosdem_rv32_gcc_opt_runset)
-    if args.fosdem_rv32_llvm_opt:
-        runsets.append(fosdem_rv32_llvm_opt_runset)
-    if args.fosdem_arm_gcc_opt:
-        runsets.append(fosdem_arm_gcc_opt_runset)
-    if args.fosdem_arm_llvm_opt:
-        runsets.append(fosdem_arm_llvm_opt_runset)
-    if args.rv32_gcc_opt:
-        runsets.append(rv32_gcc_opt_runset)
-    if args.rv32_llvm_opt:
-        runsets.append(rv32_llvm_opt_runset)
-    if args.rv32_gcc_isa:
-        runsets.append(rv32_gcc_isa_runset)
-    if args.rv32_gcc_version:
-        runsets.append(rv32_gcc_version_runset)
-    if args.gcc_arch:
-        runsets.append(gcc_arch_runset)
-    if args.gcc9_arch:
-        runsets.append(gcc9_arch_runset)
-    if args.arm_gcc_version:
-        runsets.append(arm_gcc_version_runset)
-
+def run_all(runsets, args):
+    """run the all runsets"""
     if not runsets:
         print("ERROR: No run sets specified")
         sys.exit(1)
@@ -1144,6 +1059,111 @@ def main():
             # Restore the environment
             if path:
                 env['PATH'] = oldpath
+
+def main():
+    """Main program to drive building of benchmarks."""
+
+    # Parse arguments using standard technology
+    parser = build_parser()
+    parser.add_argument(
+        '--fosdem-rv32-gcc-opt',
+        action='store_true',
+        help='Run FOSDEM RV32IMC GCC optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--fosdem-rv32-llvm-opt',
+        action='store_true',
+        help='Run FOSDEM RV32IMC Clang/LLVM optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--fosdem-arm-gcc-opt',
+        action='store_true',
+        help='Run FOSDEM Arm Cortex M4 GCC optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--fosdem-arm-llvm-opt',
+        action='store_true',
+        help='Run FOSDEM Arm Cortex M4 Clang/LLVM optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--rv32-gcc-opt',
+        action='store_true',
+        help='Run RISC-V GCC optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--rv32-llvm-opt',
+        action='store_true',
+        help='Run RISC-V Clang/LLVM optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--rv32-gcc-isa',
+        action='store_true',
+        help='Run RISC-V GCC isa comparison benchmarks'
+    )
+    parser.add_argument(
+        '--rv32-gcc-version',
+        action='store_true',
+        help='Run RISC-V GCC version comparison benchmarks'
+    )
+    parser.add_argument(
+        '--gcc-arch',
+        action='store_true',
+        help='Run GCC architecture comparison benchmarks'
+    )
+    parser.add_argument(
+        '--gcc9-arch',
+        action='store_true',
+        help='Run GCC 9.2 architecture comparison benchmarks'
+    )
+    parser.add_argument(
+        '--arm-gcc-version',
+        action='store_true',
+        help='Run Arm GCC version comparison benchmarks'
+    )
+    parser.add_argument(
+        '--native',
+        action='store_true',
+        help='Run native comparison benchmarks'
+    )
+    parser.add_argument(
+        '--native-base',
+        action='store_true',
+        help='Run native comparison benchmarks'
+    )
+
+    args = parser.parse_args()
+
+    runsets = []
+
+    if args.fosdem_rv32_gcc_opt:
+        runsets.append(fosdem_rv32_gcc_opt_runset)
+    if args.fosdem_rv32_llvm_opt:
+        runsets.append(fosdem_rv32_llvm_opt_runset)
+    if args.fosdem_arm_gcc_opt:
+        runsets.append(fosdem_arm_gcc_opt_runset)
+    if args.fosdem_arm_llvm_opt:
+        runsets.append(fosdem_arm_llvm_opt_runset)
+    if args.rv32_gcc_opt:
+        runsets.append(rv32_gcc_opt_runset)
+    if args.rv32_llvm_opt:
+        runsets.append(rv32_llvm_opt_runset)
+    if args.rv32_gcc_isa:
+        runsets.append(rv32_gcc_isa_runset)
+    if args.rv32_gcc_version:
+        runsets.append(rv32_gcc_version_runset)
+    if args.gcc_arch:
+        runsets.append(gcc_arch_runset)
+    if args.gcc9_arch:
+        runsets.append(gcc9_arch_runset)
+    if args.arm_gcc_version:
+        runsets.append(arm_gcc_version_runset)
+    if args.native:
+        runsets.append(native_runset)
+    if args.native_base:
+        runsets.append(native_base_runset)
+
+    run_all(runsets, args)
+
 
 # Make sure we have new enough Python and only run if this is the main package
 
