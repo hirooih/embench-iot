@@ -1263,13 +1263,7 @@ def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None
             env=env,
             timeout=30,
         )
-        if res.returncode == 0:
-            if not ('All benchmarks built successfully' in
-                    res.stdout.decode('utf-8')):
-                print(res.stdout.decode('utf-8'))
-                print('ERROR: Not all benchmarks built successfully')
-                sys.exit(1)
-        else:
+        if res.returncode != 0:
             print(res.stdout.decode('utf-8'))
             print(f'ERROR: {arglist_to_str(arglist)} failed')
             sys.exit(1)
@@ -1297,13 +1291,7 @@ def benchmark(arglist, timeout, desc, resfile, append, verbose=False):
             stderr=subprocess.PIPE,
             timeout=timeout,
         )
-        if res.returncode == 0:
-            if not ('All benchmarks ' + desc +' successfully' in
-                    res.stdout.decode('utf-8')):
-                print(res.stdout.decode('utf-8'))
-                print('ERROR: Not all benchmarks ' + desc + ' successfully')
-                succeeded = False
-        else:
+        if res.returncode != 0:
             print(res.stdout.decode('utf-8'))
             print(f'ERROR: {arglist_to_str(arglist)} failed')
             succeeded = False

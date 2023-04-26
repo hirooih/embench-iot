@@ -766,6 +766,9 @@ def main():
 
     if successful:
         log.info('All benchmarks built successfully')
+    else:
+        log.info('ERROR: Failed to build benchmarks')
+        sys.exit(1)
 
 
 # Make sure we have new enough Python and only run if this is the main package
