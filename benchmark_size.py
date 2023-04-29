@@ -220,6 +220,9 @@ def build_parser():
         nargs='+',
         help='Benchmark name(s) to exclude.'
     )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', help='More messages'
+    )
 
     return parser
 
@@ -422,7 +425,7 @@ def main():
     args = parser.parse_args()
 
     # Establish logging
-    setup_logging(args.logdir, 'size')
+    setup_logging(args.logdir, 'size', args.verbose)
     log_args(args)
 
     # Check args are OK (have to have logging and build directory set up first)

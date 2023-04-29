@@ -725,7 +725,7 @@ def main():
 
     # Establish logging, using "build" as the log file prefix.
     gp['verbose'] = args.verbose
-    setup_logging(args.logdir, 'build')
+    setup_logging(args.logdir, 'build', args.verbose)
     log_args(args)
 
     # Establish build directory
