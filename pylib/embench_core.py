@@ -81,7 +81,7 @@ def create_logdir(logdir):
     return logdir
 
 
-def setup_logging(logdir, prefix):
+def setup_logging(logdir, prefix, verbose=False):
     """Set up logging in the directory specified by "logdir".
 
        The log file name is the "prefix" argument followed by a timestamp.
@@ -98,7 +98,10 @@ def setup_logging(logdir, prefix):
     # Set up logging
     log.setLevel(logging.DEBUG)
     cons_h = logging.StreamHandler(sys.stdout)
-    cons_h.setLevel(logging.INFO)
+    if verbose:
+            cons_h.setLevel(logging.DEBUG)
+    else:
+            cons_h.setLevel(logging.INFO)
     log.addHandler(cons_h)
     file_h = logging.FileHandler(logfile)
     file_h.setLevel(logging.DEBUG)

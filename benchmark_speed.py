@@ -146,6 +146,9 @@ def get_common_args():
         nargs='+',
         help='Benchmark name(s) to exclude. Results obtained from subsets are not valid Embench scores.'
     )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', help='More messages'
+    )
 
     return parser.parse_known_args()
 
@@ -377,7 +380,7 @@ def main():
     args, remnant = get_common_args()
 
     # Establish logging
-    setup_logging(args.logdir, 'speed')
+    setup_logging(args.logdir, 'speed', args.verbose)
     log_args(args)
 
     # Check args are OK (have to have logging and build directory set up first)

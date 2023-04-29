@@ -1142,6 +1142,9 @@ def build_parser():
         help='Benchmark name(s) to exclude.'
     )
     parser.add_argument(
+        '-v', '--verbose', action='store_true', help='More messages'
+    )
+    parser.add_argument(
         '--resdir',
         type=str,
         default='results',
@@ -1207,7 +1210,7 @@ def build_parser():
 
 
 def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None, ldflags=None,
-                     dummy_libs=None, user_libs=None, path=None, env=None):
+                     dummy_libs=None, user_libs=None, path=None, env=None, verbose=False):
     """Build all the benchmarks"""
 
     # Construct the argument list
@@ -1250,6 +1253,8 @@ def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None
         env = None
 
     # Run the build script
+    if verbose:
+        print(arglist_to_str(arglist))
     try:
         res = subprocess.run(
             arglist,
@@ -1275,11 +1280,13 @@ def build_benchmarks(benchmark, exclude, arch, chip, board, cc='cc', cflags=None
         env['PATH'] = oldpath
 
 
-def benchmark(arglist, timeout, desc, resfile, append):
+def benchmark(arglist, timeout, desc, resfile, append, verbose=False):
     """Run the speed benchmark script"""
 
     # Run the benchmark script
     succeeded = True
+    if verbose:
+        print(arglist_to_str(arglist))
     try:
         res = subprocess.run(
             arglist,
@@ -1374,6 +1381,8 @@ def main():
                 add_arglist += ['--benchmark'] + args.benchmark
             if args.exclude:
                 add_arglist += ['--exclude'] + args.exclude
+            if args.verbose:
+                add_arglist += ['--verbose']
 
             # Size benchmark
             if 'size benchmark' in rs:
@@ -1389,13 +1398,15 @@ def main():
                     dummy_libs='crt0 libc libgcc libm',
                     path=path,
                     env=env,
+                    verbose=args.verbose,
                 )
                 benchmark(
                     arglist=rs['size benchmark']['arglist'] + add_arglist,
                     timeout=rs['size benchmark']['timeout'],
                     desc=rs['size benchmark']['desc'],
                     resfile=resfile,
-                    append=False
+                    append=False,
+                    verbose=args.verbose,
                 )
 
             # Speed benchmark
@@ -1412,13 +1423,15 @@ def main():
                     user_libs='-lm',
                     path=path,
                     env=env,
+                    verbose=args.verbose,
                 )
                 benchmark(
                     arglist=rs['speed benchmark']['arglist'] + add_arglist,
                     timeout=rs['speed benchmark']['timeout'],
                     desc=rs['speed benchmark']['desc'],
                     resfile=resfile,
-                    append=True
+                    append=True,
+                    verbose=args.verbose,
                 )
 
 
