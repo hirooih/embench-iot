@@ -21,6 +21,7 @@ import os
 import shutil
 import subprocess
 import sys
+import textwrap
 
 sys.path.append(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
@@ -727,7 +728,21 @@ arm_gcc_version_runset = {
 
 def build_parser():
     """Build a parser for all the arguments"""
-    parser = argparse.ArgumentParser(description='Build all the benchmarks')
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=textwrap.dedent('''\
+            Build all the benchmarks.
+
+            You may wish to run speed benchmarks in batch processes, record the results in a log file,
+            and collect the benchmark results from the log.
+
+            In such a case, do the following:
+
+            # Build and run the speed benchmark
+            ./run_all --no-size --run-set-for-speed
+            # Build and collect size benchmarks, and collect speed benchmarks
+            ./run_all --no-build-for-speed  --run-set-to-collect-result
+            '''))
 
     parser.add_argument(
         '--benchmark',
@@ -762,6 +777,14 @@ def build_parser():
         default='results',
         help='Directory in which to place results files',
     )
+    parser.add_argument(
+        '--no-size',
+        action='store_true',
+        help='Disable the size benchmark.')
+    parser.add_argument(
+        '--no-build-for-speed',
+        action='store_true',
+        help='Disable the build for speed benchmark.')
     parser.add_argument(
         '--fosdem-rv32-gcc-opt',
         action='store_true',
@@ -1055,7 +1078,7 @@ def main():
                 env = None
 
             # Size benchmark
-            if 'size benchmark' in rs:
+            if not args.no_size and 'size benchmark' in rs:
                 build_benchmarks(
                     benchmark=args.benchmark,
                     exclude=args.exclude,
@@ -1086,24 +1109,25 @@ def main():
 
             # Speed benchmark
             if 'speed benchmark' in rs:
-                build_benchmarks(
-                    benchmark=args.benchmark,
-                    exclude=args.exclude,
-                    builddir=args.builddir,
-                    logdir=args.logdir,
-                    arch=r['arch'],
-                    chip=r['chip'],
-                    board=r['board'],
-                    cc=r.get('cc'),
-                    ld=r.get('ld'),
-                    cflags=r.get('cflags'),
-                    ldflags=r.get('ldflags'),
-                    user_libs=user_libs_speed,
-                    env=r.get('env'),
-                    cpu_mhz=r.get('cpu_mhz'),
-                    warmup_heat=r.get('warmup_heat'),
-                    verbose=args.verbose,
-                )
+                if not args.no_build_for_speed:
+                    build_benchmarks(
+                        benchmark=args.benchmark,
+                        exclude=args.exclude,
+                        builddir=args.builddir,
+                        logdir=args.logdir,
+                        arch=r['arch'],
+                        chip=r['chip'],
+                        board=r['board'],
+                        cc=r.get('cc'),
+                        ld=r.get('ld'),
+                        cflags=r.get('cflags'),
+                        ldflags=r.get('ldflags'),
+                        user_libs=user_libs_speed,
+                        env=r.get('env'),
+                        cpu_mhz=r.get('cpu_mhz'),
+                        warmup_heat=r.get('warmup_heat'),
+                        verbose=args.verbose,
+                    )
                 add_arglist_speed = ['--no-json-head'] if 'size benchmark' in rs else []
                 if 'timeout' in rs['speed benchmark']:
                     timeout = rs['speed benchmark']['timeout']
