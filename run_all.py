@@ -1404,6 +1404,9 @@ def main():
                     verbose=args.verbose,
                 )
                 add_arglist_speed = ['--no-json-head'] if 'size benchmark' in rs else []
+                if 'timeout' in rs['speed benchmark']:
+                    timeout = rs['speed benchmark']['timeout']
+                    add_arglist_speed += [f'--timeout={timeout}']
                 benchmark(
                     arglist=rs['speed benchmark']['arglist'] + add_arglist + add_arglist_speed,
                     timeout=rs['speed benchmark']['timeout'],
