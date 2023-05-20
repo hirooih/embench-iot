@@ -1342,10 +1342,18 @@ def main():
 
         for r in rs['runs']:
             name = r['name']
-            if r['ldflags']:
-                ldflags_size = r['ldflags'] + ' -nostartfiles -nostdlib'
+            if 'nostartfiles' in r:
+                nostartfiles = r['nostartfiles']
             else:
-                ldflags_size = '-nostartfiles -nostdlib'
+                nostartfiles = '-nostartfiles'
+            if 'nostdlib' in r:
+                nostdlib = r['nostdlib']
+            else:
+                nostdlib = '-nostdlib'
+            if r['ldflags']:
+                ldflags_size = r['ldflags'] + f' {nostartfiles} {nostdlib}'
+            else:
+                ldflags_size = f'{nostartfiles} {nostdlib}'
 
             if 'user_libs' in r:
                 user_libs_speed = r['user_libs']
