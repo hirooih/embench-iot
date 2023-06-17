@@ -1296,12 +1296,17 @@ def benchmark(arglist, timeout, desc, resfile, append, verbose=False):
 
 
 def prepend_path(path):
-    install_dir = os.path.abspath(os.path.join(
-        os.path.dirname(__file__),
-        os.pardir,
-        path,
-        'bin'
-    ))
+    if os.path.isabs(path):
+        install_dir = os.path.abspath(os.path.join(
+            path,
+        ))
+    else:
+        install_dir = os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            os.pardir,
+            path,
+            'bin'   # remains for backward compatibility
+        ))
     env = os.environ
     old_path = env['PATH']
     env['PATH'] = install_dir + os.pathsep + env['PATH']
