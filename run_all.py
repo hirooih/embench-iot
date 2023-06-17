@@ -1203,7 +1203,7 @@ def build_parser():
 
 
 def build_benchmarks(benchmark, exclude, builddir, logdir, arch, chip, board, cc=None, cflags=None, ldflags=None,
-                     dummy_libs=None, user_libs=None, path=None, env=None,
+                     dummy_libs=None, user_libs=None, env=None,
                      ld=None, cpu_mhz=None, warmup_heat=None, verbose=False):
     """Build all the benchmarks"""
 
@@ -1241,20 +1241,6 @@ def build_benchmarks(benchmark, exclude, builddir, logdir, arch, chip, board, cc
     if exclude:
         arglist += ['--exclude'] + exclude
 
-    # Do we need a different path?
-    if path:
-        installdir = os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            os.pardir,
-            path,
-            'bin'
-        ))
-        env = os.environ
-        oldpath = env['PATH']
-        env['PATH'] = installdir + os.pathsep + env['PATH']
-    else:
-        env = None
-
     # Run the build script
     if verbose:
         print(arglist_to_str(arglist))
@@ -1274,10 +1260,6 @@ def build_benchmarks(benchmark, exclude, builddir, logdir, arch, chip, board, cc
         print(res.stdout.decode('utf-8'))
         print(f'ERROR: {arglist_to_str(arglist)} timed out')
         sys.exit(1)
-
-    # Restore the environment
-    if path:
-        env['PATH'] = oldpath
 
 
 def benchmark(arglist, timeout, desc, resfile, append, verbose=False):
@@ -1311,6 +1293,19 @@ def benchmark(arglist, timeout, desc, resfile, append, verbose=False):
                 if not 'All benchmarks ' + desc + ' successfully' in line:
                     fileh.writelines(line)
             fileh.close()
+
+
+def prepend_path(path):
+    install_dir = os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        os.pardir,
+        path,
+        'bin'
+    ))
+    env = os.environ
+    old_path = env['PATH']
+    env['PATH'] = install_dir + os.pathsep + env['PATH']
+    return env, old_path
 
 
 # a list of scalar parameters
@@ -1428,6 +1423,12 @@ def main():
             if args.verbose:
                 add_arglist += ['--verbose']
 
+            path = r.get('path')
+            if path:
+                env, oldpath = prepend_path(path)
+            else:
+                env = None
+
             # Size benchmark
             if 'size benchmark' in rs:
                 build_benchmarks(
@@ -1443,7 +1444,6 @@ def main():
                     cflags=r.get('cflags'),
                     ldflags=ldflags_size,
                     dummy_libs='crt0 libc libgcc libm',
-                    path=r.get('path'),
                     env=r.get('env'),
                     cpu_mhz=r.get('cpu_mhz'),
                     warmup_heat=r.get('warmup_heat'),
@@ -1474,7 +1474,6 @@ def main():
                     cflags=r.get('cflags'),
                     ldflags=r.get('ldflags'),
                     user_libs=user_libs_speed,
-                    path=r.get('path'),
                     env=r.get('env'),
                     cpu_mhz=r.get('cpu_mhz'),
                     warmup_heat=r.get('warmup_heat'),
@@ -1493,6 +1492,9 @@ def main():
                     verbose=args.verbose,
                 )
 
+            # Restore the environment
+            if path:
+                env['PATH'] = oldpath
 
 # Make sure we have new enough Python and only run if this is the main package
 
