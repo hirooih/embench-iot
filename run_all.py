@@ -1212,6 +1212,7 @@ def build_benchmarks(benchmark, exclude, builddir, logdir, arch, chip, board, cc
         f'./build_all.py',
         f'--clean',
         f'--verbose',
+        '--timeout=30',     # The default value (5sec) is to short for LTO.
         f'--builddir={builddir}',
         f'--logdir={logdir}',
         f'--arch={arch}',
