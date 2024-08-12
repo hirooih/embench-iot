@@ -21,6 +21,7 @@ import os
 import shutil
 import subprocess
 import sys
+import shlex
 
 sys.path.append(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
@@ -67,8 +68,8 @@ def build_parser():
     )
     parser.add_argument('--cc', help='C compiler to use')
     parser.add_argument('--ld', help='Linker to use')
-    parser.add_argument('--cflags', help='Additional C compiler flags to use')
-    parser.add_argument('--ldflags', help='Additional linker flags to use')
+    parser.add_argument('--cflags', nargs=1, help='Additional C compiler flags to use')
+    parser.add_argument('--ldflags', nargs=1, help='Additional linker flags to use')
     parser.add_argument(
         '--env',
         help='additional environment vars, format <V>=<val> [,<V>=<value>]...',
@@ -290,9 +291,9 @@ def populate_user_flags(conf, args):
        values supplied on the command line in the structure, "args"."""
 
     if args.cflags:
-        conf['cflags'] = args.cflags.split()
+        conf['cflags'] = shlex.split(args.cflags[0])
     if args.ldflags:
-        conf['ldflags'] = args.ldflags.split()
+        conf['ldflags'] = shlex.split(args.ldflags[0])
 
     return conf
 
