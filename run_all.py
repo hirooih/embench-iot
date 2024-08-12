@@ -42,8 +42,11 @@ def build_parser():
     """Build a parser for all the arguments"""
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=textwrap.dedent('''\
-            Build all the benchmarks.
+        description=textwrap.dedent(f'''\
+            Build and run all the benchmarks.
+
+            # A typical run
+            {sys.argv[0]} --<run-set>
 
             You may wish to run speed benchmarks in batch processes, record the results in a log file,
             and collect the benchmark results from the log.
@@ -51,9 +54,9 @@ def build_parser():
             In such a case, do the following:
 
             # Build and run the speed benchmark
-            ./run_all --no-size --run-set-for-speed
+            {sys.argv[0]} --no-size --<run-set>
             # Build and collect size benchmarks, and collect speed benchmarks
-            ./run_all --no-build-for-speed  --run-set-to-collect-result
+            {sys.argv[0]} --no-build-for-speed  --<run-set>
             '''))
 
     parser.add_argument(
@@ -319,7 +322,7 @@ def run_all(runsets, args):
                     board=r['board'],
                     cc=r.get('cc'),
                     ld=r.get('ld'),
-                    cflags=r.get('cflags'),
+                    cflags=r.get('cflags') + " -DSIZE_BENCHMARK",
                     ldflags=ldflags_size,
                     dummy_libs='crt0 libc libgcc libm',
                     env=r.get('env'),
@@ -350,7 +353,7 @@ def run_all(runsets, args):
                         board=r['board'],
                         cc=r.get('cc'),
                         ld=r.get('ld'),
-                        cflags=r.get('cflags'),
+                        cflags=r.get('cflags') + " -DSPEED_BENCHMARK",
                         ldflags=r.get('ldflags'),
                         user_libs=user_libs_speed,
                         env=r.get('env'),

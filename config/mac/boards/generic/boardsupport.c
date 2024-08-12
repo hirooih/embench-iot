@@ -25,13 +25,16 @@ initialise_board ()
 void __attribute__ ((noinline)) __attribute__ ((externally_visible))
 start_trigger ()
 {
+#ifdef SPEED_BENCHMARK
     clock_gettime(CLOCK_REALTIME, &begin_r);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &begin_c);
+#endif
 }
 
 void __attribute__ ((noinline)) __attribute__ ((externally_visible))
 stop_trigger ()
 {
+#ifdef SPEED_BENCHMARK
 	// clocks report in ns but quantum is 1 us
 	// update rate differes between x86 and Apple Silicon Mac
     clock_gettime(CLOCK_REALTIME, &end_r);
@@ -46,4 +49,5 @@ stop_trigger ()
 
     // report time in ms
     printf("Real time: %.6f ms CPU time: %.6f ms \n", elapsed_r*1000.0, elapsed_c*1000.0);
+#endif
 }
