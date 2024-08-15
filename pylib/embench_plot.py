@@ -43,12 +43,15 @@ class embenchPlot:
     def title_gm_gsd(self, type):
         return f"{self.title_prefix()}{self.mode.capitalize()} {type.capitalize()} Score"
 
-    def plot_gm_gsd(self, d, type, xticks_rotation=10):
+    def plot_gm_gsd(self, d, type, xticks_rotation=30):
         """Plot Geometric Means and Geometric Standard Deviations."""
         fig, ax = plt.subplots(constrained_layout=True)
-        plt.bar(d.keys(),
-                [v['gm'] for k, v in d.items()],
-                yerr=[v['gsd'] - 1.0 for k, v in d.items()], capsize=10)
+        bar = plt.bar(
+            d.keys(),
+            [v['gm'] for k, v in d.items()],
+            yerr=[v['gsd'] - 1.0 for k, v in d.items()],
+            capsize=10)
+        ax.bar_label(bar, fmt='%.2f', label_type="edge")
         plt.xticks(rotation=xticks_rotation)
         plt.title(self.title_gm_gsd(type))
         self.show(plt, f"gm_gsd-{self.mode}-{type}.svg")
@@ -177,8 +180,8 @@ class embenchPlot:
 
             try:
                 d = json.load(f)
-            except json.JSONDecodeError:
-                print(f"JSON format error in {file}. Ignored.", file=sys.stderr)
+            except json.JSONDecodeError as e:
+                print(f"JSON format error in {file}. Ignored.:{e}", file=sys.stderr)
                 sys.exit(1)
 
             # run names are used in graph.
