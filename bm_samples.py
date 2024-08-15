@@ -17,6 +17,7 @@ Run sets of Embench benchmarks
 
 
 import sys
+import os
 from run_all import build_parser, run_all
 
 
